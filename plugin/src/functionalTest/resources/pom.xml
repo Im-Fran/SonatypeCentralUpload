@@ -1,0 +1,35 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>cl.franciscosolis</groupId>
+    <artifactId>sonatypecentraluploadtest</artifactId>
+    <version>1.0.0</version>
+    <url>https://github.com/Im-Fran/SonatypeCentralUpload</url>
+    <description>A gradle plugin to upload artifacts to sonatype central</description>
+    <name>SonatypeCentralUpload</name>
+
+    <distributionManagement>
+        <repository>
+            <id>central</id>
+            <url>https://repo1.maven.org/maven2/</url>
+        </repository>
+    </distributionManagement>
+
+    <developers>
+        <developer>
+            <id>Im-Fran</id>
+            <name>Francisco Solis</name>
+            <email>imfran@duck.com</email>
+        </developer>
+    </developers>
+
+    <scm>
+        <url>https://github.com/Im-Fran/SonatypeCentralUpload</url>
+    </scm>
+
+    <licenses>
+        <license>
+            <name>GNU GPL v3</name>
+            <url>https://github.com/Im-Fran/SonatypeCentralUpload/blob/master/LICENSE</url>
+        </license>
+    </licenses>
+</project>
