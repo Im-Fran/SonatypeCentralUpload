@@ -1,2 +1,2 @@
 rootProject.name = "SonatypeCentralUpload"
-include("plugin")
+include("SonatypeCentralUpload")
