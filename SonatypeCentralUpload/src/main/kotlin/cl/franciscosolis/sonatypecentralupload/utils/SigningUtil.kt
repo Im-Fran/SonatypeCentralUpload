@@ -16,7 +16,7 @@ import javax.net.ssl.HttpsURLConnection
  */
 fun signFile(file: File, signingKey: String, signingPassword: String): File? = try {
     val signedFile = File(file.parentFile, "${file.name}.asc")
-    val keyBytes = if(signingKey.contains("PGP PRIVATE KEY BLOCK")) {
+    val keyBytes = if(signingKey.startsWith("-----BEGIN PGP") && signingKey.contains("KEY BLOCK-----")) {
         signingKey.replace("\\n", "\n")
             .toByteArray()
     } else if (File(signingKey).exists()) {
@@ -49,7 +49,7 @@ fun signFile(file: File, signingKey: String, signingPassword: String): File? = t
  * Sends the given public key to the key server.
  * @param key The public key to send.
  */
-fun sendKeyToServer(key: String) {
+fun sendKeyToServer(key: String) = try {
     val url = URL("https://keyserver.ubuntu.com/pks/add")
     val connection = url.openConnection() as HttpsURLConnection
     connection.requestMethod = "POST"
@@ -68,4 +68,11 @@ fun sendKeyToServer(key: String) {
         println("Response message: ${connection.responseMessage}")
         println("Response body: ${connection.inputStream.bufferedReader().readText()}")
     }
+
+    connection.disconnect()
+} catch (e: Exception) {
+    if(System.getenv("SONATYPECENTRALUPLOAD_DEBUG") != null) {
+        e.printStackTrace()
+    }
+    System.err.println("Failed to send key to server.")
 }

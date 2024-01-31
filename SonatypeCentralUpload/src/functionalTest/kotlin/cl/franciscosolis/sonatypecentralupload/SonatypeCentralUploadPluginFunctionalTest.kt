@@ -47,6 +47,8 @@ class SonatypeCentralUploadPluginFunctionalTest {
             rootProject.name = "SonatypeCentralUploadTest"
         """.trimIndent())
         buildFile.writeText("""
+            import cl.franciscosolis.sonatypecentralupload.SonatypeCentralUploadTask
+            
             plugins {
                 id("cl.franciscosolis.gradledotenv") version "1.0.1"
                 id("cl.franciscosolis.sonatype-central-upload")
@@ -55,17 +57,26 @@ class SonatypeCentralUploadPluginFunctionalTest {
             group = "cl.franciscosolis"
             version = "$version"
             
-            sonatypeCentralUpload {
-                username = env["SONATYPE_USERNAME"] ?: ""
-                password = env["SONATYPE_PASSWORD"] ?: ""
+            tasks {
+                register("randomTask") {
+                    doLast {
+                        println("Random task")
+                    }
+                }
                 
-                signingKey = env["SIGNING_KEY"] ?: ""
-                signingKeyPassphrase = env["SIGNING_PASSWORD"] ?: ""
-                publicKey = env["PUBLIC_KEY"] ?: ""
-                
-                archives = files("${mockJar.absolutePath}", "${mockSourcesJar.absolutePath}", "${mockJavadocJar.absolutePath}")
-                
-                pom = file("${mockPom.absolutePath}")
+                named<SonatypeCentralUploadTask>("sonatypeCentralUpload") {
+                    dependsOn(named("randomTask"))
+                    username = env["SONATYPE_USERNAME"] ?: ""
+                    password = env["SONATYPE_PASSWORD"] ?: ""
+                    
+                    signingKey = env["SIGNING_KEY"] ?: ""
+                    signingKeyPassphrase = env["SIGNING_PASSWORD"] ?: ""
+                    publicKey = env["PUBLIC_KEY"] ?: ""
+                    
+                    archives = files("${mockJar.absolutePath}", "${mockSourcesJar.absolutePath}", "${mockJavadocJar.absolutePath}")
+                    
+                    pom = file("${mockPom.absolutePath}")
+                }   
             }
         """.trimIndent())
 
