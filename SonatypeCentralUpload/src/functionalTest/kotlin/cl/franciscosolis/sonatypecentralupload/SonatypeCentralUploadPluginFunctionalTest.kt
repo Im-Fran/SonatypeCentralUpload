@@ -47,8 +47,6 @@ class SonatypeCentralUploadPluginFunctionalTest {
             rootProject.name = "SonatypeCentralUploadTest"
         """.trimIndent())
         buildFile.writeText("""
-            import cl.franciscosolis.sonatypecentralupload.SonatypeCentralUploadTask
-            
             plugins {
                 id("cl.franciscosolis.gradledotenv") version "1.0.1"
                 id("cl.franciscosolis.sonatype-central-upload")
@@ -64,7 +62,7 @@ class SonatypeCentralUploadPluginFunctionalTest {
                     }
                 }
                 
-                named<SonatypeCentralUploadTask>("sonatypeCentralUpload") {
+                sonatypeCentralUpload {
                     dependsOn(named("randomTask"))
                     username = env["SONATYPE_USERNAME"] ?: ""
                     password = env["SONATYPE_PASSWORD"] ?: ""
