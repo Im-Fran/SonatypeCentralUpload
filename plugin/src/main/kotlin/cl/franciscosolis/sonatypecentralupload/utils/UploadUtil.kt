@@ -3,22 +3,21 @@ package cl.franciscosolis.sonatypecentralupload.utils
 import com.google.gson.JsonParser
 import java.io.File
 import java.net.URL
-import java.net.URLEncoder
 import java.util.*
 import javax.net.ssl.HttpsURLConnection
 
 /**
  * Initializes the publishing process in Sonatype Central.
  * @param file The file to upload.
- * @param deploymentName The deployment name to use.
  * @param username The username to use.
  * @param password The password to use.
  */
-fun initPublishingProcess(file: File, deploymentName: String, username: String, password: String) {
-    val authorizationHeader = "Basic ${Base64.getEncoder().encodeToString("$username:$password".toByteArray())}"
+fun initPublishingProcess(file: File, username: String, password: String) {
+    val authorizationHeader = "UserToken ${Base64.getEncoder().encodeToString("$username:$password".toByteArray())}"
 
-    val deploymentId = uploadToCentral(file, deploymentName, authorizationHeader)
+    val deploymentId = uploadToCentral(file, authorizationHeader)
 
+    var loops = 0
     var status: String
     do {
         status = deploymentStatus(deploymentId, authorizationHeader)
@@ -27,29 +26,36 @@ fun initPublishingProcess(file: File, deploymentName: String, username: String, 
                 throw IllegalStateException("Failed to upload to Sonatype Central. Deployment ID: $deploymentId")
             }
             "VALIDATED" -> {
-                println("[Sonatype Central Upload] Deployment verified. Waiting 5 seconds before publishing deployment...")
+                println("[Sonatype Central Upload] Deployment verified! Now we wait for publishing...")
                 Thread.sleep(5000)
             }
+            "PUBLISHED" -> {
+                println("[Sonatype Central Upload] Deployment published!")
+            }
             else -> {
+                if(loops >= 3) {
+                    // Assume everything is ok
+                    println("[Sonatype Central Upload] Deployment status: $status. Assuming everything is ok. For further information please check your Sonatype Central account (usually it takes 5-7 minutes to publish).")
+                    break
+                }
+
                 println("[Sonatype Central Upload] Deployment status: $status. Waiting 5 seconds before checking status again...")
+                loops++
                 Thread.sleep(5000)
             }
         }
-    } while (status != "VALIDATED" && status != "PUBLISHED")
-
-    publishDeployment(deploymentId, authorizationHeader)
+    } while (status != "PUBLISHED")
 }
 
 /**
  * Uploads the given zipFile into Sonatype Central
  * @param file The zipFile to upload.
- * @param deploymentName The deployment id to use.
  * @param authorizationHeader The authorization header to use.
  * @return The deployment id.
  */
-private fun uploadToCentral(file: File, deploymentName: String, authorizationHeader: String): String{
+private fun uploadToCentral(file: File, authorizationHeader: String): String {
     println("[Sonatype Central Upload] Uploading to Sonatype Central...")
-    val url = URL("https://central.sonatype.com/api/v1/publisher/upload?name=${URLEncoder.encode(deploymentName, Charsets.UTF_8)}&publishingType=AUTOMATIC")
+    val url = URL("https://central.sonatype.com/api/v1/publisher/upload?publishingType=AUTOMATIC")
     val connection = url.openConnection() as HttpsURLConnection
     connection.requestMethod = "POST"
     connection.doOutput = true
@@ -57,12 +63,30 @@ private fun uploadToCentral(file: File, deploymentName: String, authorizationHea
     connection.setRequestProperty("Content-Type", "multipart/form-data")
     connection.setRequestProperty("Accept", "text/plain")
     connection.setRequestProperty("User-Agent", "Gradle Sonatype Central Upload Plugin")
-    connection.setRequestProperty("Content-Length", file.length().toString())
-    connection.outputStream.write(file.readBytes())
-    connection.outputStream.flush()
-    connection.outputStream.close()
+
+    // Updated content type and modified payload to include "bundle" parameter
+    val boundary = "*****" + System.currentTimeMillis() + "*****"
+    connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=$boundary")
+
+    val outputStream = connection.outputStream
+    val writer = outputStream.bufferedWriter()
+
+    writer.write("--$boundary\r\n")
+    writer.write("Content-Disposition: form-data; name=\"bundle\"; filename=\"${file.name}\"\r\n")
+    writer.write("Content-Type: application/octet-stream\r\n\r\n")
+    writer.flush()
+
+    file.inputStream().copyTo(outputStream)
+
+    writer.write("\r\n--$boundary--\r\n")
+    writer.flush()
+
+    writer.close()
+    outputStream.close()
+
     connection.connect()
-    if(connection.responseCode != 201) {
+
+    if (connection.responseCode != 201) {
         throw IllegalStateException("Failed to upload to Sonatype Central. Response code: ${connection.responseCode}. Response message: ${connection.responseMessage}.")
     }
 
@@ -95,27 +119,4 @@ private fun deploymentStatus(deploymentId: String, authorizationHeader: String):
     val response = String(statusConnection.inputStream.readAllBytes(), Charsets.UTF_8)
     val json = JsonParser.parseString(response).asJsonObject
     return json["deploymentState"].asString
-}
-
-/**
- * Publishes the given deployment after it has been verified.
- * @param deploymentId The deployment id to publish.
- * @param authorizationHeader The authorization header to use.
- */
-private fun publishDeployment(deploymentId: String, authorizationHeader: String) {
-    println("[Sonatype Central Upload] Publishing deployment...")
-    val publishUrl = URL("https://central.sonatype.com/api/v1/publisher/deployment/$deploymentId")
-    val publishConnection = publishUrl.openConnection() as HttpsURLConnection
-    publishConnection.requestMethod = "POST"
-    publishConnection.setRequestProperty("Authorization", authorizationHeader)
-    publishConnection.setRequestProperty("Content-Type", "application/json")
-    publishConnection.setRequestProperty("Accept", "*/*")
-    publishConnection.setRequestProperty("User-Agent", "Gradle Sonatype Central Upload Plugin")
-    publishConnection.connect()
-
-    if (publishConnection.responseCode != 200) {
-        throw IllegalStateException("Failed to publish deployment. Response code: ${publishConnection.responseCode}. Response message: ${publishConnection.responseMessage}.")
-    }
-
-    println("[Sonatype Central Upload] Successfully published deployment.")
 }

@@ -16,10 +16,31 @@ class SonatypeCentralUploadPluginFunctionalTest {
 
     @Test
     fun testSonatypeCentralUpload() {
-        val mockJar = File(javaClass.getResource("/sonatypecentraluploadtest-1.0.0.jar")?.file ?: error("Could not find mock jar"))
-        val mockSourcesJar = File(javaClass.getResource("/sonatypecentraluploadtest-1.0.0-sources.jar")?.file ?: error("Could not find mock sources jar"))
-        val mockJavadocJar = File(javaClass.getResource("/sonatypecentraluploadtest-1.0.0-javadoc.jar")?.file ?: error("Could not find mock javadoc jar"))
-        val mockPom = File(javaClass.getResource("/pom.xml")?.file ?: error("Could not find mock pom"))
+        val mockJarInResources = File(javaClass.getResource("/sonatypecentraluploadtest-1.0.0.jar")?.file ?: error("Could not find mock jar"))
+        val mockSourcesJarInResources = File(javaClass.getResource("/sonatypecentraluploadtest-1.0.0-sources.jar")?.file ?: error("Could not find mock sources jar"))
+        val mockJavadocJarInResources = File(javaClass.getResource("/sonatypecentraluploadtest-1.0.0-javadoc.jar")?.file ?: error("Could not find mock javadoc jar"))
+        val mockPomInResources = File(javaClass.getResource("/pom.xml")?.file ?: error("Could not find mock pom"))
+
+        // Copy all jars to the project directory/build/libs
+        val version = "1.0.${System.currentTimeMillis()}"
+        val mockJar = File(projectDir, "build/libs/sonatypecentraluploadtest-$version.jar").apply {
+            parentFile.mkdirs()
+            writeBytes(mockJarInResources.readBytes())
+        }
+        val mockSourcesJar = File(projectDir, "build/libs/sonatypecentraluploadtest-$version-sources.jar").apply {
+            parentFile.mkdirs()
+            writeBytes(mockSourcesJarInResources.readBytes())
+        }
+        val mockJavadocJar = File(projectDir, "build/libs/sonatypecentraluploadtest-$version-javadoc.jar").apply {
+            parentFile.mkdirs()
+            writeBytes(mockJavadocJarInResources.readBytes())
+        }
+
+        // Copy the pom to the project directory
+        val mockPom = File(projectDir, "pom.xml").apply {
+            parentFile.mkdirs()
+            writeBytes(mockPomInResources.readText().replace("1.0.0", version).toByteArray())
+        }
 
         // Set up the test build
         settingsFile.writeText("""
@@ -32,7 +53,7 @@ class SonatypeCentralUploadPluginFunctionalTest {
             }
             
             group = "cl.franciscosolis"
-            version = "1.0.0"
+            version = "$version"
             
             sonatypeCentralUpload {
                 username = env["SONATYPE_USERNAME"] ?: ""
@@ -57,12 +78,12 @@ class SonatypeCentralUploadPluginFunctionalTest {
             .withProjectDir(projectDir)
             .build()
 
-        assertTrue(File(projectDir, "build/sonatype-central-upload/cl/franciscosolis/sonatypecentraluploadtest/1.0.0/sonatypecentraluploadtest-1.0.0.jar").exists())
-        assertTrue(File(projectDir, "build/sonatype-central-upload/cl/franciscosolis/sonatypecentraluploadtest/1.0.0/sonatypecentraluploadtest-1.0.0.jar.md5").exists())
-        assertTrue(File(projectDir, "build/sonatype-central-upload/cl/franciscosolis/sonatypecentraluploadtest/1.0.0/sonatypecentraluploadtest-1.0.0.jar.sha1").exists())
-        assertTrue(File(projectDir, "build/sonatype-central-upload/cl/franciscosolis/sonatypecentraluploadtest/1.0.0/sonatypecentraluploadtest-1.0.0.jar.sha256").exists())
-        assertTrue(File(projectDir, "build/sonatype-central-upload/cl/franciscosolis/sonatypecentraluploadtest/1.0.0/sonatypecentraluploadtest-1.0.0.jar.sha512").exists())
-        assertTrue(File(projectDir, "build/sonatype-central-upload/cl/franciscosolis/sonatypecentraluploadtest/1.0.0/sonatypecentraluploadtest-1.0.0.jar.asc").exists())
-        assertTrue(File(projectDir, "build/sonatype-central-upload/sonatypecentraluploadtest-1.0.0.zip").exists())
+        assertTrue(File(projectDir, "build/sonatype-central-upload/cl/franciscosolis/sonatypecentraluploadtest/$version/sonatypecentraluploadtest-$version.jar").exists())
+        assertTrue(File(projectDir, "build/sonatype-central-upload/cl/franciscosolis/sonatypecentraluploadtest/$version/sonatypecentraluploadtest-$version.jar.md5").exists())
+        assertTrue(File(projectDir, "build/sonatype-central-upload/cl/franciscosolis/sonatypecentraluploadtest/$version/sonatypecentraluploadtest-$version.jar.sha1").exists())
+        assertTrue(File(projectDir, "build/sonatype-central-upload/cl/franciscosolis/sonatypecentraluploadtest/$version/sonatypecentraluploadtest-$version.jar.sha256").exists())
+        assertTrue(File(projectDir, "build/sonatype-central-upload/cl/franciscosolis/sonatypecentraluploadtest/$version/sonatypecentraluploadtest-$version.jar.sha512").exists())
+        assertTrue(File(projectDir, "build/sonatype-central-upload/cl/franciscosolis/sonatypecentraluploadtest/$version/sonatypecentraluploadtest-$version.jar.asc").exists())
+        assertTrue(File(projectDir, "build/sonatype-central-upload/sonatypecentraluploadtest-$version.zip").exists())
     }
 }

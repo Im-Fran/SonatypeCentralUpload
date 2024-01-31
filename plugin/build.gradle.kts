@@ -26,9 +26,7 @@ gradlePlugin {
 }
 
 // Add a source set for the functional test suite
-val functionalTestSourceSet = sourceSets.create("functionalTest") {
-}
-
+val functionalTestSourceSet = sourceSets.create("functionalTest")
 configurations["functionalTestImplementation"].extendsFrom(configurations["testImplementation"])
 configurations["functionalTestRuntimeOnly"].extendsFrom(configurations["testRuntimeOnly"])
 
@@ -44,9 +42,4 @@ gradlePlugin.testSourceSets.add(functionalTestSourceSet)
 tasks.named<Task>("check") {
     // Run the functional tests as part of `check`
     dependsOn(functionalTest)
-}
-
-tasks.named<Test>("test") {
-    // Use JUnit Jupiter for unit tests.
-    useJUnitPlatform()
 }

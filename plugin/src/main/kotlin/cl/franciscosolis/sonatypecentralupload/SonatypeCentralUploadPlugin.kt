@@ -87,8 +87,7 @@ class SonatypeCentralUploadPlugin: Plugin<Project> {
                 val zipFile = File(sonatypeCentralUploadDir, "${project.name.lowercase()}-${project.version}.zip")
                 zipFolder(File(sonatypeCentralUploadDir, groupFolder.split('/').first()), zipFile)
 
-                val deploymentName = "${project.group}:${project.name.lowercase()}/${project.version}"
-                initPublishingProcess(zipFile, deploymentName, extension.username.orNull ?: "", extension.password.orNull ?: "")
+                initPublishingProcess(zipFile, extension.username.orNull ?: "", extension.password.orNull ?: "")
             }
         }
     }
