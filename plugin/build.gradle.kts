@@ -1,6 +1,18 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     `java-gradle-plugin`
     alias(libs.plugins.jvm)
+    id("com.gradle.plugin-publish") version "1.2.1"
+}
+
+version = "1.0.0"
+group = "cl.franciscosolis"
+
+// Set up the publishing plugin
+if(System.getenv("GRADLE_PUBLISH_KEY") != null && System.getenv("GRADLE_PUBLISH_SECRET") != null) {
+    System.setProperty("gradle.publish.key", System.getenv("GRADLE_PUBLISH_KEY"))
+    System.setProperty("gradle.publish.secret", System.getenv("GRADLE_PUBLISH_SECRET"))
 }
 
 repositories {
@@ -18,10 +30,17 @@ dependencies {
 }
 
 gradlePlugin {
+    website = "https://github.com/Im-Fran/SonatypeCentralUpload"
+    vcsUrl = "https://github.com/Im-Fran/SonatypeCentralUpload"
+
     // Define the plugin
     val sonatypeCentralUpload by plugins.creating {
         id = "cl.franciscosolis.sonatype-central-upload"
         implementationClass = "cl.franciscosolis.sonatypecentralupload.SonatypeCentralUploadPlugin"
+        displayName = "Sonatype Central Upload"
+        version = project.version
+        description = "A Gradle plugin to upload artifacts to Sonatype Central."
+        tags = listOf("sonatype", "central", "upload", "publish", "maven")
     }
 }
 
@@ -39,7 +58,25 @@ val functionalTest by tasks.registering(Test::class) {
 
 gradlePlugin.testSourceSets.add(functionalTestSourceSet)
 
-tasks.named<Task>("check") {
-    // Run the functional tests as part of `check`
-    dependsOn(functionalTest)
+tasks {
+    named<Task>("check") {
+        // Run the functional tests as part of `check`
+        dependsOn(functionalTest)
+    }
+
+    withType<KotlinCompile> {
+        kotlinOptions {
+            jvmTarget = "11"
+        }
+    }
+}
+
+
+configure<JavaPluginExtension> {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+
+    sourceSets {
+        getByName("main").java.srcDirs("src/main/kotlin")
+    }
 }
