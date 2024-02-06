@@ -1,10 +1,6 @@
 # SonatypeCentralUpload
 This is an unofficial gradle plugin to upload artifacts to [Sonatype Central Repository](https://central.sonatype.com).
 
-(This is a work in progress) To-do list:
-- [ ] Fix http requests to upload, verify and publish deployments returning error 500
-- [ ] Add automated publishing to gradle with actions
-
 # Usage
 ## 1. Add the plugin to your buildscript
 Groovy:
