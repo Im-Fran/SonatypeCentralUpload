@@ -29,8 +29,8 @@ sonatypeCentralUpload {
     username = "your-username"                      // This is your Sonatype generated username
     password = "your-password"                      // This is your sonatype generated password
     
-    archives = files(/*...*/)                       // This is a list of files to upload. Ideally you would point to your jar file, source and javadoc jar (required by central)
-    pom = file("path/to/pom.xml")                   // This is the pom file to upload. This is required by central
+    archives = files(/*...*/)                       // This is a list of files to upload. Ideally you would point to your jar file, source and javadoc jar (required by Central)
+    pom = file("path/to/pom.xml")                   // This is the pom file to upload. This is required by Central
     
     signingKey = "--BEGIN PGP PRIVATE KEY BLOCK--"  // This is your PGP private key. This is required to sign your files
     signingKeyPassphrase = "..."                    // This is your PGP private key passphrase (optional) to decrypt your private key
@@ -46,8 +46,8 @@ sonatypeCentralUpload {
     username = "your-username"                         // This is your Sonatype generated username
     password = "your-password"                         // This is your sonatype generated password
     
-    archives = files(/*...*/)                          // This is a list of files to upload. Ideally you would point to your jar file, source and javadoc jar (required by central)
-    pom = file("path/to/pom.xml")                      // This is the pom file to upload. This is required by central
+    archives = files(/*...*/)                          // This is a list of files to upload. Ideally you would point to your jar file, source and javadoc jar (required by Central)
+    pom = file("path/to/pom.xml")                      // This is the pom file to upload. This is required by Central
     
     signingKey = "--BEGIN PGP PRIVATE KEY BLOCK--"     // This is your PGP private key. This is required to sign your files
     signingKeyPassphrase = "..."                       // This is your PGP private key passphrase (optional) to decrypt your private key
