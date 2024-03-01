@@ -35,6 +35,8 @@ sonatypeCentralUpload {
     signingKey = "--BEGIN PGP PRIVATE KEY BLOCK--"  // This is your PGP private key. This is required to sign your files
     signingKeyPassphrase = "..."                    // This is your PGP private key passphrase (optional) to decrypt your private key
     publicKey = "--BEGIN PGP PUBLIC KEY BLOCK--"    // This is your PGP public key (optional). To distribute later to verify your deployments.
+
+    publishingType = "AUTOMATIC"                    // This is the publishing strategy (optional). By default, the plugin automatically publishes the jar to Central. The possible values are: AUTOMATIC (default) or MANUAL.
 }
 ```
 
@@ -50,6 +52,8 @@ sonatypeCentralUpload {
     signingKey = "--BEGIN PGP PRIVATE KEY BLOCK--"     // This is your PGP private key. This is required to sign your files
     signingKeyPassphrase = "..."                       // This is your PGP private key passphrase (optional) to decrypt your private key
     publicKey = "--BEGIN PGP PUBLIC KEY BLOCK--"       // This is your PGP public key (optional). To distribute later to verify your deployments.
+
+    publishingType = "AUTOMATIC"                       // This is the publishing strategy (optional). By default, the plugin automatically publishes the jar to Central. The possible values are: AUTOMATIC (default) or MANUAL.
 }
 ```
 

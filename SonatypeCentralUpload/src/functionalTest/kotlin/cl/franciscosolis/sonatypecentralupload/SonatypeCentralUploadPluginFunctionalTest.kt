@@ -74,6 +74,8 @@ class SonatypeCentralUploadPluginFunctionalTest {
                     archives = files("${mockJar.absolutePath}", "${mockSourcesJar.absolutePath}", "${mockJavadocJar.absolutePath}")
                     
                     pom = file("${mockPom.absolutePath}")
+
+                    publishingType = "AUTOMATIC"
                 }   
             }
         """.trimIndent())

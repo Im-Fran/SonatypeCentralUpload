@@ -37,6 +37,10 @@ abstract class SonatypeCentralUploadTask: DefaultTask() {
     @get:Input
     abstract val pom: Property<File>
 
+    @get:Input
+    @get:Optional
+    abstract val publishingType: Property<String>
+
     @TaskAction
     fun run() {
         val groupFolder = "${project.group}".replace('.', '/').lowercase()
@@ -61,6 +65,8 @@ abstract class SonatypeCentralUploadTask: DefaultTask() {
         if (!pom.isPresent || pom.orNull == null) {
             throw IllegalStateException("'pom' is empty. A pom file is required.")
         }
+
+        val publishingTypeOption = publishingTypeOptionValue()
 
         // Create upload dir
         if(!uploadDir.exists()) {
@@ -114,9 +120,21 @@ abstract class SonatypeCentralUploadTask: DefaultTask() {
         val zipFile = File(sonatypeCentralUploadDir, "${project.name.lowercase()}-${project.version}.zip")
         zipFolder(File(sonatypeCentralUploadDir, groupFolder.split('/').first()), zipFile)
 
-        initPublishingProcess(zipFile, username.orNull ?: "", password.orNull ?: "")
+        initPublishingProcess(zipFile, username.orNull ?: "", password.orNull ?: "", publishingTypeOption)
     }
 
+    private fun publishingTypeOptionValue(): String {
+        val publishingTypeOptions = mapOf(
+            "AUTOMATIC" to "AUTOMATIC",
+            "MANUAL" to "USER_MANAGED"
+        )
 
-
+        return when (val match = publishingTypeOptions[publishingType.getOrElse("AUTOMATIC").uppercase()]) {
+            null -> {
+                val message = "'publishingType' must be one of the following values: %s."
+                throw IllegalStateException(message.format(publishingTypeOptions.keys.joinToString(", ")))
+            }
+            else -> match
+        }
+    }
 }

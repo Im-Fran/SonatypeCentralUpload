@@ -6,16 +6,19 @@ import java.net.URL
 import java.util.*
 import javax.net.ssl.HttpsURLConnection
 
+private const val manualPublishingOption = "USER_MANAGED"
+
 /**
  * Initializes the publishing process in Sonatype Central.
  * @param file The file to upload.
  * @param username The username to use.
  * @param password The password to use.
+ * @param publishingType The publishing type strategy to use.
  */
-fun initPublishingProcess(file: File, username: String, password: String) {
+fun initPublishingProcess(file: File, username: String, password: String, publishingType: String) {
     val authorizationHeader = "UserToken ${Base64.getEncoder().encodeToString("$username:$password".toByteArray())}"
 
-    val deploymentId = uploadToCentral(file, authorizationHeader)
+    val deploymentId = uploadToCentral(file, authorizationHeader, publishingType)
 
     var loops = 0
     var status: String
@@ -26,8 +29,12 @@ fun initPublishingProcess(file: File, username: String, password: String) {
                 throw IllegalStateException("Failed to upload to Sonatype Central. Deployment ID: $deploymentId")
             }
             "VALIDATED" -> {
-                println("[Sonatype Central Upload] Deployment verified! Now we wait for publishing...")
-                Thread.sleep(5000)
+                if (manualPublishingOption == publishingType) {
+                    println("[Sonatype Central Upload] Deployment verified! You need to publish manually on your Sonatype Central Account.")
+                } else {
+                    println("[Sonatype Central Upload] Deployment verified! Now we wait for publishing...")
+                    Thread.sleep(5000)
+                }
             }
             "PUBLISHED" -> {
                 println("[Sonatype Central Upload] Deployment published!")
@@ -44,18 +51,19 @@ fun initPublishingProcess(file: File, username: String, password: String) {
                 Thread.sleep(5000)
             }
         }
-    } while (status != "PUBLISHED")
+    } while (!hasDeploymentFinished(status, publishingType))
 }
 
 /**
  * Uploads the given zipFile into Sonatype Central
  * @param file The zipFile to upload.
  * @param authorizationHeader The authorization header to use.
+ * @param publishingType The publishing type strategy to use.
  * @return The deployment id.
  */
-private fun uploadToCentral(file: File, authorizationHeader: String): String {
+private fun uploadToCentral(file: File, authorizationHeader: String, publishingType: String): String {
     println("[Sonatype Central Upload] Uploading to Sonatype Central...")
-    val url = URL("https://central.sonatype.com/api/v1/publisher/upload?publishingType=AUTOMATIC")
+    val url = URL("https://central.sonatype.com/api/v1/publisher/upload?publishingType=$publishingType")
     val connection = url.openConnection() as HttpsURLConnection
     connection.requestMethod = "POST"
     connection.doOutput = true
@@ -120,3 +128,12 @@ private fun deploymentStatus(deploymentId: String, authorizationHeader: String):
     val json = JsonParser.parseString(response).asJsonObject
     return json["deploymentState"].asString
 }
+
+/**
+ * Returns if the deployment has finished.
+ * @param status The status of the deployment.
+ * @param publishingType The publishing type strategy to use.
+ * @return true if the deployment has finished.
+ */
+private fun hasDeploymentFinished(status: String, publishingType: String): Boolean =
+    (manualPublishingOption == publishingType && "VALIDATED" == status) || "PUBLISHED" == status
