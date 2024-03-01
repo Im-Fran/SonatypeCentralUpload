@@ -6,14 +6,14 @@ This is an unofficial gradle plugin to upload artifacts to [Sonatype Central Rep
 Groovy:
 ```groovy
 plugins {
-    id 'cl.franciscosolis.sonatype-central-upload' version '1.0.0'
+    id 'cl.franciscosolis.sonatype-central-upload' version '1.0.3'
 }
 ```
 
 Kotlin:
 ```kts
 plugins {
-    id("cl.franciscosolis.sonatype-central-upload") version "1.0.0"
+    id("cl.franciscosolis.sonatype-central-upload") version "1.0.3"
 }
 ```
 
