@@ -1,7 +1,7 @@
 name: "Test"
 # Only execute this workflow when a PR is opened or when something is pushed to the master branch
 on:
-  pull_request:
+  push:
     branches: [ master ]
 jobs:
   test:
