@@ -6,7 +6,7 @@ plugins {
     id("com.gradle.plugin-publish") version "1.2.1"
 }
 
-version = "1.0.2"
+version = "1.0.3"
 group = "cl.franciscosolis"
 
 // Set up the publishing plugin

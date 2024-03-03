@@ -6,14 +6,14 @@ This is an unofficial gradle plugin to upload artifacts to [Sonatype Central Rep
 Groovy:
 ```groovy
 plugins {
-    id 'cl.franciscosolis.sonatype-central-upload' version '1.0.0'
+    id 'cl.franciscosolis.sonatype-central-upload' version '1.0.3'
 }
 ```
 
 Kotlin:
 ```kts
 plugins {
-    id("cl.franciscosolis.sonatype-central-upload") version "1.0.0"
+    id("cl.franciscosolis.sonatype-central-upload") version "1.0.3"
 }
 ```
 
@@ -29,12 +29,14 @@ sonatypeCentralUpload {
     username = "your-username"                      // This is your Sonatype generated username
     password = "your-password"                      // This is your sonatype generated password
     
-    archives = files(/*...*/)                       // This is a list of files to upload. Ideally you would point to your jar file, source and javadoc jar (required by central)
-    pom = file("path/to/pom.xml")                   // This is the pom file to upload. This is required by central
+    archives = files(/*...*/)                       // This is a list of files to upload. Ideally you would point to your jar file, source and javadoc jar (required by Central)
+    pom = file("path/to/pom.xml")                   // This is the pom file to upload. This is required by Central
     
     signingKey = "--BEGIN PGP PRIVATE KEY BLOCK--"  // This is your PGP private key. This is required to sign your files
     signingKeyPassphrase = "..."                    // This is your PGP private key passphrase (optional) to decrypt your private key
     publicKey = "--BEGIN PGP PUBLIC KEY BLOCK--"    // This is your PGP public key (optional). To distribute later to verify your deployments.
+
+    publishingType = "AUTOMATIC"                    // This is the publishing strategy (optional). By default, the plugin automatically publishes the jar to Central. The possible values are: AUTOMATIC (default) or MANUAL.
 }
 ```
 
@@ -44,12 +46,14 @@ sonatypeCentralUpload {
     username = "your-username"                         // This is your Sonatype generated username
     password = "your-password"                         // This is your sonatype generated password
     
-    archives = files(/*...*/)                          // This is a list of files to upload. Ideally you would point to your jar file, source and javadoc jar (required by central)
-    pom = file("path/to/pom.xml")                      // This is the pom file to upload. This is required by central
+    archives = files(/*...*/)                          // This is a list of files to upload. Ideally you would point to your jar file, source and javadoc jar (required by Central)
+    pom = file("path/to/pom.xml")                      // This is the pom file to upload. This is required by Central
     
     signingKey = "--BEGIN PGP PRIVATE KEY BLOCK--"     // This is your PGP private key. This is required to sign your files
     signingKeyPassphrase = "..."                       // This is your PGP private key passphrase (optional) to decrypt your private key
     publicKey = "--BEGIN PGP PUBLIC KEY BLOCK--"       // This is your PGP public key (optional). To distribute later to verify your deployments.
+
+    publishingType = "AUTOMATIC"                       // This is the publishing strategy (optional). By default, the plugin automatically publishes the jar to Central. The possible values are: AUTOMATIC (default) or MANUAL.
 }
 ```
 
