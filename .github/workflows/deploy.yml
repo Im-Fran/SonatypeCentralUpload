@@ -4,26 +4,46 @@ on:
   release:
     types: [published]
 jobs:
-  deploy:
-    name: "Deploy Gradle Plugin"
-    # Set up OS
+  # End-to-end test: performs a real upload to Sonatype Central with the test artifacts
+  e2e:
+    name: "End-to-end Test"
     runs-on: ubuntu-latest
-    environment: "Gradle Plugin Portal"
+    environment: "Gradle Plugin Test"
     steps:
-      # Checkout code
       - name: Checkout Code
         uses: actions/checkout@v7
-      # Setup java and maven
       - name: Set up JDK
         uses: actions/setup-java@v6
         with:
           distribution: 'temurin'
           java-version: 17
           cache: 'gradle'
-      # Setup executable gradle
       - name: Make Gradle executable
         run: chmod +x gradlew
-      # Test plugin
+      - name: Run Functional Tests
+        env:
+          PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+        run: ./gradlew functionalTest --no-daemon
+  deploy:
+    name: "Deploy Gradle Plugin"
+    needs: e2e
+    runs-on: ubuntu-latest
+    environment: "Gradle Plugin Portal"
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+      - name: Set up JDK
+        uses: actions/setup-java@v6
+        with:
+          distribution: 'temurin'
+          java-version: 17
+          cache: 'gradle'
+      - name: Make Gradle executable
+        run: chmod +x gradlew
       - name: Publish Plugin
         env:
           GRADLE_PUBLISH_KEY: ${{ secrets.GRADLE_PUBLISH_KEY }}

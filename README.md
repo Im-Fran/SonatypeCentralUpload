@@ -156,7 +156,9 @@ cd SonatypeCentralUpload
 
 ### Tests
 
-`./gradlew check` also runs the functional test, which **performs a real upload to Sonatype Central** using the mock artifacts in `SonatypeCentralUpload/src/functionalTest/resources`. It needs these environment variables:
+`./gradlew build` compiles, validates the plugin and compiles the functional test. This is what CI runs on every push and PR to `dev`, and it needs no credentials.
+
+The functional test is an end-to-end test that **performs a real upload to Sonatype Central** (and publishes it) using the mock artifacts in `SonatypeCentralUpload/src/functionalTest/resources`. It only runs on release, and needs these environment variables:
 
 | Variable | Description |
 |----------|-------------|
@@ -167,12 +169,12 @@ cd SonatypeCentralUpload
 | `PUBLIC_KEY` | Armored PGP public key |
 
 ```bash
-./gradlew check
+./gradlew functionalTest
 ```
 
 ### Releasing
 
-Publishing a GitHub release triggers the [`deploy.yml`](.github/workflows/deploy.yml) workflow, which runs `./gradlew publishPlugins` to push the plugin to the Gradle Plugin Portal using the `GRADLE_PUBLISH_KEY` and `GRADLE_PUBLISH_SECRET` secrets. Bump `version` in `SonatypeCentralUpload/build.gradle.kts` before releasing.
+Publishing a GitHub release triggers the [`deploy.yml`](.github/workflows/deploy.yml) workflow. It first runs the end-to-end functional test (environment `Gradle Plugin Test`) and, only if it passes, runs `./gradlew publishPlugins` (environment `Gradle Plugin Portal`) to push the plugin to the Gradle Plugin Portal using the `GRADLE_PUBLISH_KEY` and `GRADLE_PUBLISH_SECRET` secrets. Bump `version` in `SonatypeCentralUpload/build.gradle.kts` before releasing.
 
 ---
 
