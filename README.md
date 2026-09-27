@@ -183,7 +183,7 @@ Issues and pull requests are welcome.
 1. Fork the repo
 2. Create a branch: `git checkout -b feat/your-feature`
 3. Commit: `git commit -m "feat: add your feature"`
-4. Push and open a PR against `master`
+4. Push and open a PR against `dev`
 
 ---
 

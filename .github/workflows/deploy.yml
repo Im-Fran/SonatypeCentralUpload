@@ -1,5 +1,5 @@
 name: "Deploy to Gradle Plugin Portal"
-# Only execute this workflow when a PR is opened or when something is pushed to the master branch
+# Publish the plugin when a GitHub release is published
 on:
   release:
     types: [published]

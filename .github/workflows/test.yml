@@ -1,8 +1,8 @@
 name: "Test"
-# Only execute this workflow when a PR is opened or when something is pushed to the master branch
+# Run the tests when something is pushed to the dev branch
 on:
   push:
-    branches: [ master ]
+    branches: [ dev ]
 jobs:
   test:
     # Set up OS
