@@ -49,8 +49,9 @@ val functionalTestSourceSet = sourceSets.create("functionalTest")
 configurations["functionalTestImplementation"].extendsFrom(configurations["testImplementation"])
 configurations["functionalTestRuntimeOnly"].extendsFrom(configurations["testRuntimeOnly"])
 
-// Add a task to run the functional tests
-val functionalTest = tasks.register<Test>("functionalTest") {
+// Functional tests perform a real upload to Sonatype Central, so they only run
+// explicitly (on release, see deploy.yml). `check` just makes sure they compile.
+tasks.register<Test>("functionalTest") {
     testClassesDirs = functionalTestSourceSet.output.classesDirs
     classpath = functionalTestSourceSet.runtimeClasspath
     useJUnitPlatform()
@@ -58,12 +59,8 @@ val functionalTest = tasks.register<Test>("functionalTest") {
 
 gradlePlugin.testSourceSets.add(functionalTestSourceSet)
 
-tasks {
-    named<Task>("check") {
-        // Run the functional tests as part of `check`
-        dependsOn(functionalTest)
-    }
-
+tasks.named("check") {
+    dependsOn(functionalTestSourceSet.classesTaskName)
 }
 
 // Gradle 9 requires Java 17 to run, so there's no point targeting anything older

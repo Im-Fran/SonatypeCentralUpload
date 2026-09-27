@@ -1,33 +1,24 @@
 name: "Test"
-# Only execute this workflow when a PR is opened or when something is pushed to the master branch
+# Build, validate the plugin and compile the functional tests. No secrets needed:
+# the end-to-end upload to Sonatype Central only runs on release (see deploy.yml).
 on:
   push:
-    branches: [ master ]
+    branches: [ dev ]
+  pull_request:
+    branches: [ dev ]
 jobs:
   test:
-    # Set up OS
     runs-on: ubuntu-latest
-    environment: "Gradle Plugin Test"
     steps:
-      # Checkout code
       - name: Checkout Code
         uses: actions/checkout@v7
-      # Setup java and maven
       - name: Set up JDK
         uses: actions/setup-java@v6
         with:
           distribution: 'temurin'
           java-version: 17
           cache: 'gradle'
-      # Setup executable gradle
       - name: Make Gradle executable
         run: chmod +x gradlew
-      # Test plugin
-      - name: Test Plugin
-        env:
-          PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
-          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
-          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
-          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-        run: ./gradlew check --no-daemon
+      - name: Build Plugin
+        run: ./gradlew build --no-daemon
