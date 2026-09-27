@@ -2,7 +2,7 @@ package cl.franciscosolis.sonatypecentralupload.utils
 
 import com.google.gson.JsonParser
 import java.io.File
-import java.net.URL
+import java.net.URI
 import java.util.*
 import javax.net.ssl.HttpsURLConnection
 
@@ -63,7 +63,7 @@ fun initPublishingProcess(file: File, username: String, password: String, publis
  */
 private fun uploadToCentral(file: File, authorizationHeader: String, publishingType: String): String {
     println("[Sonatype Central Upload] Uploading to Sonatype Central...")
-    val url = URL("https://central.sonatype.com/api/v1/publisher/upload?publishingType=$publishingType")
+    val url = URI("https://central.sonatype.com/api/v1/publisher/upload?publishingType=$publishingType").toURL()
     val connection = url.openConnection() as HttpsURLConnection
     connection.requestMethod = "POST"
     connection.doOutput = true
@@ -111,7 +111,7 @@ private fun uploadToCentral(file: File, authorizationHeader: String, publishingT
  */
 private fun deploymentStatus(deploymentId: String, authorizationHeader: String): String {
     println("[Sonatype Central Upload] Checking status of deployment...")
-    val statusUrl = URL("https://central.sonatype.com/api/v1/publisher/status?id=$deploymentId")
+    val statusUrl = URI("https://central.sonatype.com/api/v1/publisher/status?id=$deploymentId").toURL()
     val statusConnection = statusUrl.openConnection() as HttpsURLConnection
     statusConnection.requestMethod = "POST"
     statusConnection.setRequestProperty("Authorization", authorizationHeader)

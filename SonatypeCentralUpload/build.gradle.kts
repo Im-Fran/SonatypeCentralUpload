@@ -1,12 +1,12 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     `java-gradle-plugin`
     alias(libs.plugins.jvm)
-    id("com.gradle.plugin-publish") version "1.2.1"
+    alias(libs.plugins.plugin.publish)
 }
 
-version = "1.0.3"
+version = "2.0.0"
 group = "cl.franciscosolis"
 
 // Set up the publishing plugin
@@ -20,9 +20,9 @@ repositories {
 }
 
 dependencies {
-    implementation("org.pgpainless:pgpainless-sop:1.6.5")
-    implementation("net.lingala.zip4j:zip4j:2.11.5")
-    implementation("com.google.code.gson:gson:2.10.1")
+    implementation(libs.pgpainless.sop)
+    implementation(libs.zip4j)
+    implementation(libs.gson)
 
     // Use the Kotlin JUnit 5 integration.
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
@@ -34,7 +34,7 @@ gradlePlugin {
     vcsUrl = "https://github.com/Im-Fran/SonatypeCentralUpload"
 
     // Define the plugin
-    val sonatypeCentralUpload by plugins.creating {
+    plugins.create("sonatypeCentralUpload") {
         id = "cl.franciscosolis.sonatype-central-upload"
         implementationClass = "cl.franciscosolis.sonatypecentralupload.SonatypeCentralUploadPlugin"
         displayName = "Sonatype Central Upload"
@@ -50,7 +50,7 @@ configurations["functionalTestImplementation"].extendsFrom(configurations["testI
 configurations["functionalTestRuntimeOnly"].extendsFrom(configurations["testRuntimeOnly"])
 
 // Add a task to run the functional tests
-val functionalTest by tasks.registering(Test::class) {
+val functionalTest = tasks.register<Test>("functionalTest") {
     testClassesDirs = functionalTestSourceSet.output.classesDirs
     classpath = functionalTestSourceSet.runtimeClasspath
     useJUnitPlatform()
@@ -64,19 +64,16 @@ tasks {
         dependsOn(functionalTest)
     }
 
-    withType<KotlinCompile> {
-        kotlinOptions {
-            jvmTarget = "11"
-        }
-    }
 }
 
+// Gradle 9 requires Java 17 to run, so there's no point targeting anything older
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
 
-configure<JavaPluginExtension> {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
-
-    sourceSets {
-        getByName("main").java.srcDirs("src/main/kotlin")
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_17
     }
 }

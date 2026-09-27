@@ -7,10 +7,11 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.UntrackedTask
 import java.io.File
 import java.nio.file.Files
 
-
+@UntrackedTask(because = "Uploads to Sonatype Central, a remote side effect that must always run.")
 abstract class SonatypeCentralUploadTask: DefaultTask() {
 
     @get:Input
