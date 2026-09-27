@@ -95,7 +95,7 @@ abstract class SonatypeCentralUploadTask: DefaultTask() {
             val pkToDistribute = if(publicKey.startsWith("-----BEGIN PGP") && publicKey.contains("KEY BLOCK-----")) {
                 publicKey.replace("\\n", "\n")
             } else if (File(publicKey).exists()) {
-                File(uploadDir, "public.key").readText().replace("\\n", "\n")
+                File(publicKey).readText().replace("\\n", "\n")
             } else {
                 throw IllegalStateException("'publicKey' is not a file or a key block.")
             }
