@@ -2,7 +2,7 @@ package cl.franciscosolis.sonatypecentralupload.utils
 
 import org.pgpainless.sop.SOPImpl
 import java.io.File
-import java.net.URL
+import java.net.URI
 import java.net.URLEncoder
 import javax.net.ssl.HttpsURLConnection
 
@@ -50,7 +50,7 @@ fun signFile(file: File, signingKey: String, signingPassword: String): File? = t
  * @param key The public key to send.
  */
 fun sendKeyToServer(key: String) = try {
-    val url = URL("https://keyserver.ubuntu.com/pks/add")
+    val url = URI("https://keyserver.ubuntu.com/pks/add").toURL()
     val connection = url.openConnection() as HttpsURLConnection
     connection.requestMethod = "POST"
     connection.addRequestProperty("Content-Type", "application/x-www-form-urlencoded")
